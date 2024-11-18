@@ -1,89 +1,82 @@
 import React, { useEffect, useRef, useState } from "react";
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import "./App.css";
+import L from "leaflet";
 import locationsData from "./locations.json";
+import "leaflet/dist/leaflet.css";
+import recyclingBinIcon from "./assets/recycling-bin.png";
 
-const MapLibreArcGISMap = () => {
+const StadiaMap = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
-  const [locations, setLocations] = useState([]);
   const [hoveredLocation, setHoveredLocation] = useState(null);
 
+  const customIcon = L.icon({
+    iconUrl: recyclingBinIcon,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+  });
+
   useEffect(() => {
-    setLocations(locationsData);
-
-    if (mapContainer.current) {
-      mapRef.current = new maplibregl.Map({
-        container: mapContainer.current,
-        style: {
-          version: 8,
-          sources: {
-            "arcgis-tiles": {
-              type: "raster",
-              tiles: [
-                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-              ],
-              tileSize: 256,
-            },
-          },
-          layers: [
+    if (mapContainer.current && !mapRef.current) {
+      mapRef.current = L.map(mapContainer.current, {
+        center: [45.40543, -73.941865],
+        zoom: 17,
+        zoomControl: false,
+        layers: [
+          L.tileLayer(
+            "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}",
             {
-              id: "arcgis-tiles-layer",
-              type: "raster",
-              source: "arcgis-tiles",
-              minzoom: 0,
-              maxzoom: 22,
-            },
-          ],
-        },
-        center: [-73.941865, 45.40543],
-        zoom: 14,
-      });
-
-      locations.forEach((location) => {
-        const el = document.createElement("div");
-        el.className = "custom-marker";
-        el.style.backgroundImage =
-          "url(https://cdn-icons-png.flaticon.com/512/2636/2636439.png)";
-        el.style.width = "30px";
-        el.style.height = "30px";
-        el.style.backgroundSize = "cover";
-
-        const marker = new maplibregl.Marker({
-          element: el,
-          color: null,
-        })
-          .setLngLat(location.coordinates)
-          .setPopup(new maplibregl.Popup().setText(location.name))
-          .addTo(mapRef.current);
-
-        marker.getElement().addEventListener("mouseenter", () => {
-          setHoveredLocation(location);
-        });
-        marker.getElement().addEventListener("mouseleave", () => {
-          setHoveredLocation(null);
-        });
+              minZoom: 0,
+              maxZoom: 20,
+              attribution: "",
+              ext: "png",
+            }
+          ),
+        ],
       });
     }
 
-    return () => mapRef.current && mapRef.current.remove();
-  }, [locations]);
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      locationsData.forEach((location) => {
+        const marker = L.marker([...location.coordinates].reverse(), {
+          icon: customIcon,
+        })
+          .addTo(mapRef.current)
+          .bindPopup(location.name);
+
+        marker.on("mouseover", () => {
+          console.log("Hovered Location:", location);
+          setHoveredLocation(location);
+        });
+        marker.on("mouseout", () => setHoveredLocation(null));
+      });
+    }
+  }, []);
 
   return (
-    <div className="relative w-full h-screen" ref={mapContainer}>
+    <div className="relative w-full h-screen">
+      <div ref={mapContainer} className="w-full h-full"></div>
+
       {hoveredLocation && (
-        <div className="absolute top-4 left-4 bg-blue-50 dark:bg-gray-800 text-blue-800 dark:text-blue-400 p-4 rounded-lg shadow-lg z-10">
+        <div
+          className="absolute top-4 left-4 bg-blue-50 dark:bg-gray-800 text-blue-800 dark:text-blue-400 p-4 rounded-lg shadow-lg z-50"
+          style={{ zIndex: 1000 }}
+        >
           <div className="flex items-start text-sm">
-            <svg
-              className="flex-shrink-0 w-4 h-4 mr-3 mt-1"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>
+            <img
+              className="flex-shrink-0 w-6 h-6 mr-3"
+              src={recyclingBinIcon}
+              alt="Recycling Bin"
+            />
             <div>
               <span className="font-medium">{hoveredLocation.name}</span>
               <ul className="mt-1.5 list-disc list-inside space-y-1">
@@ -94,8 +87,19 @@ const MapLibreArcGISMap = () => {
           </div>
         </div>
       )}
+
+      <div
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-blue-50 text-white rounded-lg shadow-lg p-2 w-full sm:w-auto"
+        style={{ zIndex: 2000 }}
+      >
+        <div className="flex justify-around">
+          <button className="px-4 py-2 text-blue-800 font-medium">Environmental Tips</button>
+          <button className="px-4 py-2 text-blue-800 font-medium">Nearest Bin</button>
+          <button className="px-4 py-2 text-blue-800 font-medium">About</button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default MapLibreArcGISMap;
+export default StadiaMap;
