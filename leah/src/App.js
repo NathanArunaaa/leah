@@ -89,11 +89,11 @@ const StadiaMap = () => {
       )}
 
       <div
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-blue-50 text-white rounded-lg shadow-lg p-2 w-full sm:w-auto"
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-blue-50 text-white rounded-lg shadow-lg p-2  "
         style={{ zIndex: 2000 }}
       >
         <div className="flex justify-around">
-          <button className="px-4 py-2 text-blue-800 font-medium">Environmental Tips</button>
+          <button className="px-4 py-2 text-blue-800 font-medium text">Environmental Tips</button>
           <button className="px-4 py-2 text-blue-800 font-medium">Nearest Bin</button>
           <button className="px-4 py-2 text-blue-800 font-medium">About</button>
         </div>
