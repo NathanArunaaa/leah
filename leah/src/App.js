@@ -63,6 +63,16 @@ const StadiaMap = () => {
     }
   }, []);
 
+  const openModal = (modalType) => {
+    setIsTipsModalVisible(false);
+    setIsFinderModalVisible(false);
+    setIsAboutModalVisible(false);
+
+    if (modalType === "tips") setIsTipsModalVisible(true);
+    if (modalType === "finder") setIsFinderModalVisible(true);
+    if (modalType === "about") setIsAboutModalVisible(true);
+  };
+
   return (
     <div className="relative w-full h-screen">
       <div ref={mapContainer} className="w-full h-full"></div>
@@ -95,7 +105,7 @@ const StadiaMap = () => {
         }`}
         style={{ zIndex: 2000 }}
       >
-        <div className="bg-blue-50 rounded-lg shadow-lg p-6 max-h-[80vh] w-[90%] md:w-[60%] overflow-y-auto relative">
+        <div className="bg-blue-50 rounded-lg shadow-lg p-6 max-h-[70vh] w-[90%] md:w-[60%] overflow-y-auto relative">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-blue-800">
               Environmental Tips♻️
@@ -111,11 +121,7 @@ const StadiaMap = () => {
           <div className="flex flex-col justify-start overflow-hidden space-y-4 py-4 max-h-[80vh]">
             <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
             <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
-            <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
-            <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
           </div>
-
-          
         </div>
       </div>
 
@@ -128,7 +134,7 @@ const StadiaMap = () => {
         <div className="bg-blue-50 rounded-lg shadow-lg p-6 ">
           <h2 className="text-xl font-bold mb-4 text-blue-800">Bin Finder🗑️</h2>
           <p className="text-gray-700">
-            Locate nearest bi content will go here
+            Locate nearest bin content will go here
           </p>
           <div className="flex justify-end mt-4">
             <button
@@ -169,20 +175,20 @@ const StadiaMap = () => {
       >
         <div className="flex justify-around">
           <button
-            onClick={() => setIsTipsModalVisible(true)}
+            onClick={() => openModal("tips")}
             className="px-4 py-2 text-blue-800 font-bold text-md"
           >
             Tips
           </button>
           <button
-            onClick={() => setIsFinderModalVisible(true)}
+            onClick={() => openModal("finder")}
             className="px-4 py-2 text-blue-800 font-bold text-md"
           >
             Finder
           </button>
           <button
+            onClick={() => openModal("about")}
             className="px-4 py-2 text-blue-800 font-bold text-md"
-            onClick={() => setIsAboutModalVisible(true)}
           >
             About
           </button>
