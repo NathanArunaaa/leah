@@ -53,7 +53,7 @@ const LinkPreview = ({ url }) => {
           </div>
         </div>
       ) : (
-        <div className="text-center text-red-600">Failed to load metadata.</div>
+        <div className="text-center text-red-600">More tips can be posted by users</div>
       )}
     </div>
   );

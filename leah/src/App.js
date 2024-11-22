@@ -5,13 +5,14 @@ import "leaflet/dist/leaflet.css";
 import recyclingBinIcon from "./assets/recycling-bin.png";
 import LinkPreview from "./LinkPreview";
 
-const StadiaMap = () => {
+const LeahMap = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const [hoveredLocation, setHoveredLocation] = useState(null);
   const [isTipsModalVisible, setIsTipsModalVisible] = useState(false);
   const [isFinderModalVisible, setIsFinderModalVisible] = useState(false);
   const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
+  const [newBinLocation, setNewBinLocation] = useState(null); // State to store new bin location
 
   const customIcon = L.icon({
     iconUrl: recyclingBinIcon,
@@ -60,8 +61,23 @@ const StadiaMap = () => {
         marker.on("mouseover", () => setHoveredLocation(location));
         marker.on("mouseout", () => setHoveredLocation(null));
       });
+
+      if (newBinLocation) {
+        const { lat, lng } = newBinLocation;
+        const marker = L.marker([lat, lng], { icon: customIcon })
+          .addTo(mapRef.current)
+          .bindPopup("New Recycling Bin");
+
+        marker.on("mouseover", () =>
+          setHoveredLocation({
+            name: "New Recycling Bin",
+            coordinates: [lat, lng],
+          })
+        );
+        marker.on("mouseout", () => setHoveredLocation(null));
+      }
     }
-  }, []);
+  }, [newBinLocation]);
 
   const openModal = (modalType) => {
     setIsTipsModalVisible(false);
@@ -71,6 +87,18 @@ const StadiaMap = () => {
     if (modalType === "tips") setIsTipsModalVisible(true);
     if (modalType === "finder") setIsFinderModalVisible(true);
     if (modalType === "about") setIsAboutModalVisible(true);
+  };
+
+  // Function to handle adding a new bin
+  const handleAddBin = () => {
+    const lat = parseFloat(prompt("Enter latitude for new bin:"));
+    const lng = parseFloat(prompt("Enter longitude for new bin:"));
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setNewBinLocation({ lat, lng });
+    } else {
+      alert("Invalid coordinates");
+    }
   };
 
   return (
@@ -120,7 +148,7 @@ const StadiaMap = () => {
 
           <div className="flex flex-col justify-start overflow-hidden space-y-4 py-4 max-h-[80vh]">
             <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
-            <LinkPreview url="https://www.nature.org/en-us/about-us/where-we-work/united-states/delaware/stories-in-delaware/delaware-eight-ways-to-reduce-waste/" />
+            <LinkPreview url="https://mighty.market/collections/reusable?srsltid=AfmBOoqBn0MIwE5cHD-anBpjyK-p2DmMyS1SAXNXL50_T73E8OE6mY9_" />
           </div>
         </div>
       </div>
@@ -153,10 +181,13 @@ const StadiaMap = () => {
         }`}
         style={{ zIndex: 2000 }}
       >
-        <div className="bg-blue-50 rounded-lg shadow-lg p-6 ">
+        <div className="bg-blue-50 rounded-lg shadow-lg p-6 max-w-2xl w-full md:w-[60%]">
           <h2 className="text-xl font-bold mb-4 text-blue-800">About Us</h2>
           <p className="text-gray-700">
-            Project objectives and creator info here
+            We're a group of four John Abbott students and our mission is to
+            empower communities to take action against waste by making recycling
+            simple, accessible, and impactful. Together, we can create a
+            cleaner, greener, and more sustainable future for all.
           </p>
           <div className="flex justify-end mt-4">
             <button
@@ -167,6 +198,16 @@ const StadiaMap = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="fixed top-4 right-4 z-2000" style={{ zIndex: 2000 }}>
+        <button
+          onClick={handleAddBin}
+          className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg"
+          style={{ zIndex: 2000 }}
+        >
+          Add Location
+        </button>
       </div>
 
       <div
@@ -180,11 +221,8 @@ const StadiaMap = () => {
           >
             Tips
           </button>
-          <button
-            onClick={() => openModal("finder")}
-            className="px-4 py-2 text-blue-800 font-bold text-md"
-          >
-            Finder
+          <button className="px-4 py-2 text-blue-800 font-bold text-md">
+            -
           </button>
           <button
             onClick={() => openModal("about")}
@@ -198,4 +236,4 @@ const StadiaMap = () => {
   );
 };
 
-export default StadiaMap;
+export default LeahMap;
